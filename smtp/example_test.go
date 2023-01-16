@@ -16,8 +16,8 @@ package smtp_test
 import (
 	"fmt"
 	"log"
-
-	"github.com/wneessen/go-mail/smtp"
+	
+	"github.com/gozelle/mail/smtp"
 )
 
 func Example() {
@@ -26,7 +26,7 @@ func Example() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	
 	// Set the sender and recipient first
 	if err := c.Mail("sender@example.org"); err != nil {
 		log.Fatal(err)
@@ -34,7 +34,7 @@ func Example() {
 	if err := c.Rcpt("recipient@example.net"); err != nil {
 		log.Fatal(err)
 	}
-
+	
 	// Send the email body.
 	wc, err := c.Data()
 	if err != nil {
@@ -48,7 +48,7 @@ func Example() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	
 	// Send the QUIT command and close the connection.
 	err = c.Quit()
 	if err != nil {
@@ -68,7 +68,7 @@ func ExamplePlainAuth() {
 	// hostname is used by PlainAuth to validate the TLS certificate.
 	hostname := "mail.example.com"
 	auth := smtp.PlainAuth("", "user@example.com", "password", hostname)
-
+	
 	err := smtp.SendMail(hostname+":25", auth, from, recipients, msg)
 	if err != nil {
 		log.Fatal(err)
@@ -78,7 +78,7 @@ func ExamplePlainAuth() {
 func ExampleSendMail() {
 	// Set up authentication information.
 	auth := smtp.PlainAuth("", "user@example.com", "password", "mail.example.com")
-
+	
 	// Connect to the server, authenticate, set the sender and recipient,
 	// and send the email all in one step.
 	to := []string{"recipient@example.net"}

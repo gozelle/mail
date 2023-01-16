@@ -2,6 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 
-module github.com/wneessen/go-mail
+module github.com/gozelle/mail
 
 go 1.16

@@ -10,8 +10,8 @@ import (
 	"os"
 	"text/template"
 	"time"
-
-	"github.com/wneessen/go-mail"
+	
+	"github.com/gozelle/mail"
 )
 
 // Code example for the NewClient method
@@ -47,7 +47,7 @@ func ExampleClient_DialAndSend() {
 	from := "Toni Tester <toni@example.com>"
 	to := "Alice <alice@example.com>"
 	server := "mail.example.com"
-
+	
 	m := mail.NewMsg()
 	if err := m.From(from); err != nil {
 		fmt.Printf("failed to set FROM address: %s", err)
@@ -58,7 +58,7 @@ func ExampleClient_DialAndSend() {
 		os.Exit(1)
 	}
 	m.Subject("This is a great subject")
-
+	
 	c, err := mail.NewClient(server)
 	if err != nil {
 		fmt.Printf("failed to create mail client: %s", err)
@@ -97,7 +97,7 @@ func ExampleMsg_SetBodyTextTemplate() {
 	if err != nil {
 		panic(err)
 	}
-
+	
 	m := mail.NewMsg()
 	if err := m.SetBodyTextTemplate(tpl, data); err != nil {
 		panic(err)
@@ -126,7 +126,7 @@ func ExampleMsg_WriteToSendmailWithContext() {
 	sendmailPath := "/opt/sendmail/sbin/sendmail"
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-
+	
 	m := mail.NewMsg()
 	m.SetBodyString(mail.TypeTextPlain, "This is the mail body string")
 	if err := m.FromFormat("Toni Tester", "toni.tester@example.com"); err != nil {

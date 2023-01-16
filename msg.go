@@ -25,7 +25,7 @@ import (
 var (
 	// ErrNoFromAddress should be used when a FROM address is requrested but not set
 	ErrNoFromAddress = errors.New("no FROM address set")
-
+	
 	// ErrNoRcptAddresses should be used when the list of RCPTs is empty
 	ErrNoRcptAddresses = errors.New("no recipient addresses set")
 )
@@ -33,10 +33,10 @@ var (
 const (
 	// errTplExecuteFailed is issued when the template execution was not successful
 	errTplExecuteFailed = "failed to execute template: %w"
-
+	
 	// errTplPointerNil is issued when a template pointer is expected but it is nil
 	errTplPointerNil = "template pointer is nil"
-
+	
 	// errParseMailAddr is used when a mail address could not be validated
 	errParseMailAddr = "failed to parse mail address %q: %w"
 )
@@ -55,42 +55,42 @@ type Middleware interface {
 type Msg struct {
 	// addrHeader is a slice of strings that the different mail AddrHeader fields
 	addrHeader map[AddrHeader][]*mail.Address
-
+	
 	// attachments represent the different attachment File of the Msg
 	attachments []*File
-
+	
 	// boundary is the MIME content boundary
 	boundary string
-
+	
 	// charset represents the charset of the mail (defaults to UTF-8)
 	charset Charset
-
+	
 	// embeds represent the different embedded File of the Msg
 	embeds []*File
-
+	
 	// encoder represents a mime.WordEncoder from the std lib
 	encoder mime.WordEncoder
-
+	
 	// encoding represents the message encoding (the encoder will be a corresponding WordEncoder)
 	encoding Encoding
-
+	
 	// genHeader is a slice of strings that the different generic mail Header fields
 	genHeader map[Header][]string
-
+	
 	// preformHeader is a slice of strings that the different generic mail Header fields
 	// of which content is already preformated and will not be affected by the automatic line
 	// breaks
 	preformHeader map[Header]string
-
+	
 	// mimever represents the MIME version
 	mimever MIMEVersion
-
+	
 	// parts represent the different parts of the Msg
 	parts []*Part
-
+	
 	// middlewares is the list of middlewares to apply to the Msg before sending in FIFO order
 	middlewares []Middleware
-
+	
 	// sendError holds the SendError in case a Msg could not be delivered during the Client.Send operation
 	sendError error
 }
@@ -111,7 +111,7 @@ func NewMsg(o ...MsgOption) *Msg {
 		preformHeader: make(map[Header]string),
 		mimever:       Mime10,
 	}
-
+	
 	// Override defaults with optionally provided MsgOption functions
 	for _, co := range o {
 		if co == nil {
@@ -119,10 +119,10 @@ func NewMsg(o ...MsgOption) *Msg {
 		}
 		co(m)
 	}
-
+	
 	// Set the matcing mime.WordEncoder for the Msg
 	m.setEncoder()
-
+	
 	return m
 }
 
@@ -847,11 +847,11 @@ func (m *Msg) appendFile(c []*File, f *File, o ...FileOption) []*File {
 		}
 		co(f)
 	}
-
+	
 	if c == nil {
 		return []*File{f}
 	}
-
+	
 	return append(c, f)
 }
 
@@ -890,17 +890,17 @@ func (m *Msg) WriteToSendmailWithContext(ctx context.Context, sp string, a ...st
 	ec := exec.CommandContext(ctx, sp)
 	ec.Args = append(ec.Args, "-oi", "-t")
 	ec.Args = append(ec.Args, a...)
-
+	
 	se, err := ec.StderrPipe()
 	if err != nil {
 		return fmt.Errorf("failed to set STDERR pipe: %w", err)
 	}
-
+	
 	si, err := ec.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("failed to set STDIN pipe: %w", err)
 	}
-
+	
 	// Start the execution and write to STDIN
 	if err := ec.Start(); err != nil {
 		return fmt.Errorf("could not start sendmail execution: %w", err)
@@ -911,12 +911,12 @@ func (m *Msg) WriteToSendmailWithContext(ctx context.Context, sp string, a ...st
 			return fmt.Errorf("failed to write mail to buffer: %w", err)
 		}
 	}
-
+	
 	// Close STDIN and wait for completion or cancellation of the sendmail executable
 	if err := si.Close(); err != nil {
 		return fmt.Errorf("failed to close STDIN pipe: %w", err)
 	}
-
+	
 	// Read the stderr pipe for possible errors
 	serr, err := io.ReadAll(se)
 	if err != nil {
@@ -925,11 +925,11 @@ func (m *Msg) WriteToSendmailWithContext(ctx context.Context, sp string, a ...st
 	if len(serr) > 0 {
 		return fmt.Errorf("sendmail command failed: %s", string(serr))
 	}
-
+	
 	if err := ec.Wait(); err != nil {
 		return fmt.Errorf("sendmail command execution failed: %w", err)
 	}
-
+	
 	return nil
 }
 
@@ -1008,7 +1008,7 @@ func (m *Msg) newPart(ct ContentType, o ...PartOption) *Part {
 		ctype: ct,
 		enc:   m.encoding,
 	}
-
+	
 	// Override defaults with optionally provided MsgOption functions
 	for _, co := range o {
 		if co == nil {
@@ -1016,7 +1016,7 @@ func (m *Msg) newPart(ct ContentType, o ...PartOption) *Part {
 		}
 		co(p)
 	}
-
+	
 	return p
 }
 
@@ -1031,7 +1031,7 @@ func (m *Msg) checkUserAgent() {
 	_, uaok := m.genHeader[HeaderUserAgent]
 	_, xmok := m.genHeader[HeaderXMailer]
 	if !uaok && !xmok {
-		m.SetUserAgent(fmt.Sprintf("go-mail v%s // https://github.com/wneessen/go-mail",
+		m.SetUserAgent(fmt.Sprintf("go-mail v%s // https://github.com/gozelle/mail",
 			VERSION))
 	}
 }
@@ -1077,7 +1077,7 @@ func fileFromFS(n string) *File {
 	if err != nil {
 		return nil
 	}
-
+	
 	return &File{
 		Name:   filepath.Base(n),
 		Header: make(map[string][]string),

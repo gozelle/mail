@@ -13,21 +13,21 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/wneessen/go-mail/smtp"
+	
+	"github.com/gozelle/mail/smtp"
 )
 
 // Defaults
 const (
 	// DefaultPort is the default connection port cto the SMTP server
 	DefaultPort = 25
-
+	
 	// DefaultTimeout is the default connection timeout
 	DefaultTimeout = time.Second * 15
-
+	
 	// DefaultTLSPolicy is the default STARTTLS policy
 	DefaultTLSPolicy = TLSMandatory
-
+	
 	// DefaultTLSMinVersion is the minimum TLS version required for the connection
 	// Nowadays TLS1.2 should be the sane default
 	DefaultTLSMinVersion = tls.VersionTLS12
@@ -45,25 +45,25 @@ const (
 	// DSNMailReturnHeadersOnly requests that only the headers of the message be returned.
 	// See: https://www.rfc-editor.org/rfc/rfc1891#section-5.3
 	DSNMailReturnHeadersOnly DSNMailReturnOption = "HDRS"
-
+	
 	// DSNMailReturnFull requests that the entire message be returned in any "failed"
 	// delivery status notification issued for this recipient
 	// See: https://www.rfc-editor.org/rfc/rfc1891#section-5.3
 	DSNMailReturnFull DSNMailReturnOption = "FULL"
-
+	
 	// DSNRcptNotifyNever requests that a DSN not be returned to the sender under
 	// any conditions.
 	// See: https://www.rfc-editor.org/rfc/rfc1891#section-5.1
 	DSNRcptNotifyNever DSNRcptNotifyOption = "NEVER"
-
+	
 	// DSNRcptNotifySuccess requests that a DSN be issued on successful delivery
 	// See: https://www.rfc-editor.org/rfc/rfc1891#section-5.1
 	DSNRcptNotifySuccess DSNRcptNotifyOption = "SUCCESS"
-
+	
 	// DSNRcptNotifyFailure requests that a DSN be issued on delivery failure
 	// See: https://www.rfc-editor.org/rfc/rfc1891#section-5.1
 	DSNRcptNotifyFailure DSNRcptNotifyOption = "FAILURE"
-
+	
 	// DSNRcptNotifyDelay indicates the sender's willingness to receive
 	// "delayed" DSNs. Delayed DSNs may be issued if delivery of a message has
 	// been delayed for an unusual amount of time (as determined by the MTA at
@@ -79,58 +79,58 @@ const (
 type Client struct {
 	// co is the net.Conn that the smtp.Client is based on
 	co net.Conn
-
+	
 	// Timeout for the SMTP server connection
 	cto time.Duration
-
+	
 	// dsn indicates that we want to use DSN for the Client
 	dsn bool
-
+	
 	// dsnmrtype defines the DSNMailReturnOption in case DSN is enabled
 	dsnmrtype DSNMailReturnOption
-
+	
 	// dsnrntype defines the DSNRcptNotifyOption in case DSN is enabled
 	dsnrntype []string
-
+	
 	// enc indicates if a Client connection is encrypted or not
 	enc bool
-
+	
 	// noNoop indicates the Noop is to be skipped
 	noNoop bool
-
+	
 	// HELO/EHLO string for the greeting the target SMTP server
 	helo string
-
+	
 	// Hostname of the target SMTP server cto connect cto
 	host string
-
+	
 	// pass is the corresponding SMTP AUTH password
 	pass string
-
+	
 	// Port of the SMTP server cto connect cto
 	port int
-
+	
 	// sa is a pointer to smtp.Auth
 	sa smtp.Auth
-
+	
 	// satype represents the authentication type for SMTP AUTH
 	satype SMTPAuthType
-
+	
 	// sc is the smtp.Client that is set up when using the Dial*() methods
 	sc *smtp.Client
-
+	
 	// Use SSL for the connection
 	ssl bool
-
+	
 	// tlspolicy sets the client to use the provided TLSPolicy for the STARTTLS protocol
 	tlspolicy TLSPolicy
-
+	
 	// tlsconfig represents the tls.Config setting for the STARTTLS connection
 	tlsconfig *tls.Config
-
+	
 	// user is the SMTP AUTH username
 	user string
-
+	
 	// dl enables the debug logging on the SMTP client
 	dl bool
 }
@@ -141,39 +141,39 @@ type Option func(*Client) error
 var (
 	// ErrInvalidPort should be used if a port is specified that is not valid
 	ErrInvalidPort = errors.New("invalid port number")
-
+	
 	// ErrInvalidTimeout should be used if a timeout is set that is zero or negative
 	ErrInvalidTimeout = errors.New("timeout cannot be zero or negative")
-
+	
 	// ErrInvalidHELO should be used if an empty HELO sting is provided
 	ErrInvalidHELO = errors.New("invalid HELO/EHLO value - must not be empty")
-
+	
 	// ErrInvalidTLSConfig should be used if an empty tls.Config is provided
 	ErrInvalidTLSConfig = errors.New("invalid TLS config")
-
+	
 	// ErrNoHostname should be used if a Client has no hostname set
 	ErrNoHostname = errors.New("hostname for client cannot be empty")
-
+	
 	// ErrDeadlineExtendFailed should be used if the extension of the connection deadline fails
 	ErrDeadlineExtendFailed = errors.New("connection deadline extension failed")
-
+	
 	// ErrNoActiveConnection should be used when a method is used that requies a server connection
 	// but is not yet connected
 	ErrNoActiveConnection = errors.New("not connected to SMTP server")
-
+	
 	// ErrServerNoUnencoded should be used when 8BIT encoding is selected for a message, but
 	// the server does not offer 8BITMIME mode
 	ErrServerNoUnencoded = errors.New("message is 8bit unencoded, but server does not support 8BITMIME")
-
+	
 	// ErrInvalidDSNMailReturnOption should be used when an invalid option is provided for the
 	// DSNMailReturnOption in WithDSN
 	ErrInvalidDSNMailReturnOption = errors.New("DSN mail return option can only be HDRS or FULL")
-
+	
 	// ErrInvalidDSNRcptNotifyOption should be used when an invalid option is provided for the
 	// DSNRcptNotifyOption in WithDSN
 	ErrInvalidDSNRcptNotifyOption = errors.New("DSN rcpt notify option can only be: NEVER, " +
 		"SUCCESS, FAILURE or DELAY")
-
+	
 	// ErrInvalidDSNRcptNotifyCombination should be used when an invalid option is provided for the
 	// DSNRcptNotifyOption in WithDSN
 	ErrInvalidDSNRcptNotifyCombination = errors.New("DSN rcpt notify option NEVER cannot be " +
@@ -189,12 +189,12 @@ func NewClient(h string, o ...Option) (*Client, error) {
 		tlsconfig: &tls.Config{ServerName: h, MinVersion: DefaultTLSMinVersion},
 		tlspolicy: DefaultTLSPolicy,
 	}
-
+	
 	// Set default HELO/EHLO hostname
 	if err := c.setDefaultHelo(); err != nil {
 		return c, err
 	}
-
+	
 	// Override defaults with optionally provided Option functions
 	for _, co := range o {
 		if co == nil {
@@ -204,12 +204,12 @@ func NewClient(h string, o ...Option) (*Client, error) {
 			return c, fmt.Errorf("failed to apply option: %w", err)
 		}
 	}
-
+	
 	// Some settings in a Client cannot be empty/unset
 	if c.host == "" {
 		return c, ErrNoHostname
 	}
-
+	
 	return c, nil
 }
 
@@ -339,7 +339,7 @@ func WithDSNMailReturnType(mro DSNMailReturnOption) Option {
 		default:
 			return ErrInvalidDSNMailReturnOption
 		}
-
+		
 		c.dsn = true
 		c.dsnmrtype = mro
 		return nil
@@ -373,7 +373,7 @@ func WithDSNRcptNotifyType(rno ...DSNRcptNotifyOption) Option {
 		if ns && nns {
 			return ErrInvalidDSNRcptNotifyCombination
 		}
-
+		
 		c.dsn = true
 		c.dsnrntype = rnol
 		return nil
@@ -460,13 +460,13 @@ func (c *Client) setDefaultHelo() error {
 func (c *Client) DialWithContext(pc context.Context) error {
 	ctx, cfn := context.WithDeadline(pc, time.Now().Add(c.cto))
 	defer cfn()
-
+	
 	nd := net.Dialer{}
-
+	
 	var err error
 	if c.ssl {
 		td := tls.Dialer{NetDialer: &nd, Config: c.tlsconfig}
-
+		
 		c.enc = true
 		c.co, err = td.DialContext(ctx, "tcp", c.ServerAddr())
 	}
@@ -476,7 +476,7 @@ func (c *Client) DialWithContext(pc context.Context) error {
 	if err != nil {
 		return err
 	}
-
+	
 	c.sc, err = smtp.NewClient(c.co, c.host)
 	if err != nil {
 		return err
@@ -487,15 +487,15 @@ func (c *Client) DialWithContext(pc context.Context) error {
 	if err := c.sc.Hello(c.helo); err != nil {
 		return err
 	}
-
+	
 	if err := c.tls(); err != nil {
 		return err
 	}
-
+	
 	if err := c.auth(); err != nil {
 		return err
 	}
-
+	
 	return nil
 }
 
@@ -507,7 +507,7 @@ func (c *Client) Close() error {
 	if err := c.sc.Quit(); err != nil {
 		return fmt.Errorf("failed to close SMTP client: %w", err)
 	}
-
+	
 	return nil
 }
 
@@ -519,7 +519,7 @@ func (c *Client) Reset() error {
 	if err := c.sc.Reset(); err != nil {
 		return fmt.Errorf("failed to send RSET to SMTP client: %w", err)
 	}
-
+	
 	return nil
 }
 
@@ -551,13 +551,13 @@ func (c *Client) checkConn() error {
 	if c.co == nil {
 		return ErrNoActiveConnection
 	}
-
+	
 	if !c.noNoop {
 		if err := c.sc.Noop(); err != nil {
 			return ErrNoActiveConnection
 		}
 	}
-
+	
 	if err := c.co.SetDeadline(time.Now().Add(c.cto)); err != nil {
 		return ErrDeadlineExtendFailed
 	}
@@ -604,7 +604,7 @@ func (c *Client) auth() error {
 		if !sa {
 			return fmt.Errorf("server does not support SMTP AUTH")
 		}
-
+		
 		switch c.satype {
 		case SMTPAuthPlain:
 			if !strings.Contains(sat, string(SMTPAuthPlain)) {
@@ -625,7 +625,7 @@ func (c *Client) auth() error {
 			return fmt.Errorf("unsupported SMTP AUTH type %q", c.satype)
 		}
 	}
-
+	
 	if c.sa != nil {
 		if err := c.sc.Auth(c.sa); err != nil {
 			return fmt.Errorf("SMTP AUTH failed: %w", err)
@@ -669,7 +669,7 @@ func (c *Client) dsnRcpt(t string) error {
 	if len(c.dsnrntype) <= 0 {
 		return c.sc.Rcpt(t)
 	}
-
+	
 	rno := strings.Join(c.dsnrntype, ",")
 	_, _, err := c.cmd(25, "RCPT TO:<%s> NOTIFY=%s", t, rno)
 	return err
@@ -695,7 +695,7 @@ func (c *Client) dsnMail(f string) error {
 		cmdStr += " SMTPUTF8"
 	}
 	cmdStr += fmt.Sprintf(" RET=%s", c.dsnmrtype)
-
+	
 	_, _, err := c.cmd(250, cmdStr, f)
 	return err
 }

@@ -14,8 +14,8 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/wneessen/go-mail/smtp"
+	
+	"github.com/gozelle/mail/smtp"
 )
 
 // DefaultHost is used as default hostname for the Client
@@ -35,7 +35,7 @@ func TestNewClient(t *testing.T) {
 		{"Default", "mail.example.com", false},
 		{"Empty host should fail", "", true},
 	}
-
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c, err := NewClient(tt.host)
@@ -106,7 +106,7 @@ func TestNewClientWithOptions(t *testing.T) {
 		{"WithDSNRcptNotifyType() wrong option", WithDSNRcptNotifyType("FAIL"), true},
 		{"WithoutNoop()", WithoutNoop(), false},
 		{"WithDebugLog()", WithDebugLog(), false},
-
+		
 		{
 			"WithDSNRcptNotifyType() NEVER combination",
 			WithDSNRcptNotifyType(DSNRcptNotifySuccess, DSNRcptNotifyNever), true,
@@ -475,7 +475,7 @@ func TestWithoutNoop(t *testing.T) {
 	if !c.noNoop {
 		t.Errorf("WithoutNoop failed. c.noNoop expected to be: %t, got: %t", true, c.noNoop)
 	}
-
+	
 	c, err = NewClient(DefaultHost)
 	if err != nil {
 		t.Errorf("failed to create new client: %s", err)
@@ -652,7 +652,7 @@ func TestClient_DialWithContextOptions(t *testing.T) {
 			if tt.wanttls != NoTLS {
 				c.SetTLSPolicy(tt.wanttls)
 			}
-
+			
 			ctx := context.Background()
 			if err := c.DialWithContext(ctx); err != nil && !tt.sf {
 				t.Errorf("failed to dial with context: %s", err)
@@ -689,12 +689,12 @@ func TestClient_DialSendClose(t *testing.T) {
 	m.SetDate()
 	m.SetMessageID()
 	m.SetBodyString(TypeTextPlain, "This is a test mail from the go-mail library")
-
+	
 	c, err := getTestConnection(true)
 	if err != nil {
 		t.Skipf("failed to create test client: %s. Skipping tests", err)
 	}
-
+	
 	ctx, cfn := context.WithTimeout(context.Background(), time.Second*10)
 	defer cfn()
 	if err := c.DialWithContext(ctx); err != nil {
@@ -721,7 +721,7 @@ func TestClient_DialAndSendWithContext(t *testing.T) {
 	m.SetDate()
 	m.SetMessageID()
 	m.SetBodyString(TypeTextPlain, "This is a test mail from the go-mail library")
-
+	
 	tests := []struct {
 		name string
 		to   time.Duration
@@ -736,7 +736,7 @@ func TestClient_DialAndSendWithContext(t *testing.T) {
 			if err != nil {
 				t.Skipf("failed to create test client: %s. Skipping tests", err)
 			}
-
+			
 			ctx, cfn := context.WithTimeout(context.Background(), tt.to)
 			defer cfn()
 			if err := c.DialAndSendWithContext(ctx, m); err != nil && !tt.sf {
@@ -759,12 +759,12 @@ func TestClient_DialAndSend(t *testing.T) {
 	m.SetDate()
 	m.SetMessageID()
 	m.SetBodyString(TypeTextPlain, "This is a test mail from the go-mail library")
-
+	
 	c, err := getTestConnection(true)
 	if err != nil {
 		t.Skipf("failed to create test client: %s. Skipping tests", err)
 	}
-
+	
 	if err := c.DialAndSend(m); err != nil {
 		t.Errorf("DialAndSend() failed: %s", err)
 	}
@@ -783,12 +783,12 @@ func TestClient_DialAndSendWithDSN(t *testing.T) {
 	m.SetDate()
 	m.SetMessageID()
 	m.SetBodyString(TypeTextPlain, "This is a test mail from the go-mail library")
-
+	
 	c, err := getTestConnectionWithDSN(true)
 	if err != nil {
 		t.Skipf("failed to create test client: %s. Skipping tests", err)
 	}
-
+	
 	if err := c.DialAndSend(m); err != nil {
 		t.Errorf("DialAndSend() failed: %s", err)
 	}
@@ -815,18 +815,18 @@ func TestClient_DialSendCloseBroken(t *testing.T) {
 		{"Close start", os.Getenv("TEST_FROM"), TestRcpt, true, false, true},
 		{"Close start/early", os.Getenv("TEST_FROM"), TestRcpt, true, true, true},
 	}
-
+	
 	m := NewMsg(WithEncoding(NoEncoding))
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m.SetAddrHeaderIgnoreInvalid(HeaderFrom, tt.from)
 			m.SetAddrHeaderIgnoreInvalid(HeaderTo, tt.to)
-
+			
 			c, err := getTestConnection(true)
 			if err != nil {
 				t.Skipf("failed to create test client: %s. Skipping tests", err)
 			}
-
+			
 			ctx, cfn := context.WithTimeout(context.Background(), time.Second*10)
 			defer cfn()
 			if err := c.DialWithContext(ctx); err != nil && !tt.sf {
@@ -875,18 +875,18 @@ func TestClient_DialSendCloseBrokenWithDSN(t *testing.T) {
 		{"Close start", os.Getenv("TEST_FROM"), TestRcpt, true, false, true},
 		{"Close start/early", os.Getenv("TEST_FROM"), TestRcpt, true, true, true},
 	}
-
+	
 	m := NewMsg(WithEncoding(NoEncoding))
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m.SetAddrHeaderIgnoreInvalid(HeaderFrom, tt.from)
 			m.SetAddrHeaderIgnoreInvalid(HeaderTo, tt.to)
-
+			
 			c, err := getTestConnectionWithDSN(true)
 			if err != nil {
 				t.Skipf("failed to create test client: %s. Skipping tests", err)
 			}
-
+			
 			ctx, cfn := context.WithTimeout(context.Background(), time.Second*10)
 			defer cfn()
 			if err := c.DialWithContext(ctx); err != nil && !tt.sf {
@@ -931,12 +931,12 @@ func TestClient_Send_withBrokenRecipient(t *testing.T) {
 		m.SetBodyString(TypeTextPlain, "This is a test mail from the go-mail library")
 		msgs = append(msgs, m)
 	}
-
+	
 	c, err := getTestConnection(true)
 	if err != nil {
 		t.Skipf("failed to create test client: %s. Skipping tests", err)
 	}
-
+	
 	ctx, cfn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cfn()
 	if err := c.DialWithContext(ctx); err != nil {
@@ -967,14 +967,14 @@ func TestClient_auth(t *testing.T) {
 		{"SMTP AUTH: LOGIN", SMTPAuthLogin, false},
 		{"SMTP AUTH: CRAM-MD5", SMTPAuthCramMD5, true},
 	}
-
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c, err := getTestConnection(false)
 			if err != nil {
 				t.Skipf("failed to create test client: %s. Skipping tests", err)
 			}
-
+			
 			ctx, cfn := context.WithTimeout(context.Background(), time.Second*5)
 			defer cfn()
 			if err := c.DialWithContext(ctx); err != nil {
@@ -1005,7 +1005,7 @@ func TestValidateLine(t *testing.T) {
 		{`invalid line: \n`, "invalid line\n", true},
 		{`invalid line: \r`, "invalid line\r", true},
 	}
-
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := validateLine(tt.value); err != nil && !tt.sf {
@@ -1034,12 +1034,12 @@ func TestClient_Send_MsgSendError(t *testing.T) {
 		m.SetBodyString(TypeTextPlain, "This is a test mail from the go-mail library")
 		msgs = append(msgs, m)
 	}
-
+	
 	c, err := getTestConnection(true)
 	if err != nil {
 		t.Skipf("failed to create test client: %s. Skipping tests", err)
 	}
-
+	
 	ctx, cfn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cfn()
 	if err := c.DialWithContext(ctx); err != nil {
@@ -1079,7 +1079,7 @@ func TestClient_DialAndSendWithContext_withSendError(t *testing.T) {
 	m.SetDate()
 	m.SetMessageID()
 	m.SetBodyString(TypeTextPlain, "This is a test mail from the go-mail library")
-
+	
 	c, err := getTestConnection(true)
 	if err != nil {
 		t.Skipf("failed to create test client: %s. Skipping tests", err)

@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: go-mail
 Upstream-Contact: Winni Neessen <winni@neessen.dev>
-Source: https://github.com/wneessen/go-mail
+Source: https://github.com/gozelle/mail
 
 # Sample paragraph, commented out:
 #
